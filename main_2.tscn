@@ -1,0 +1,185 @@
+[gd_scene format=4 uid="uid://6aawrp5c1bq"]
+
+[ext_resource type="Texture2D" uid="uid://bm0hj86j7sxpt" path="res://textures/tex_black_tile.png" id="2_7dk57"]
+[ext_resource type="Script" uid="uid://cn3kv1uhsjb5r" path="res://scripts/Player2.cs" id="2_pmt41"]
+[ext_resource type="Texture2D" uid="uid://cj04dnpfbv1qc" path="res://textures/tex_white_tile.png" id="3_pmt41"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pmt41"]
+size = Vector2(32, 32)
+
+[sub_resource type="Gradient" id="Gradient_11jtl"]
+interpolation_mode = 1
+colors = PackedColorArray(0, 1, 0, 1, 0, 1, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_pmt41"]
+gradient = SubResource("Gradient_11jtl")
+width = 32
+height = 32
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_n70ar"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_2ha8l"]
+texture = ExtResource("3_pmt41")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_11jtl"]
+texture = ExtResource("2_7dk57")
+texture_region_size = Vector2i(64, 64)
+use_texture_padding = false
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[sub_resource type="TileSet" id="TileSet_eawnh"]
+tile_size = Vector2i(64, 64)
+physics_layer_0/collision_layer = 3
+physics_layer_0/collision_mask = 3
+physics_layer_0/physics_material = SubResource("PhysicsMaterial_n70ar")
+sources/0 = SubResource("TileSetAtlasSource_2ha8l")
+sources/1 = SubResource("TileSetAtlasSource_11jtl")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bemee"]
+size = Vector2(64, 126)
+
+[sub_resource type="Gradient" id="Gradient_2ha8l"]
+interpolation_mode = 1
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_5wmus"]
+gradient = SubResource("Gradient_2ha8l")
+height = 128
+
+[sub_resource type="Gradient" id="Gradient_eawnh"]
+interpolation_mode = 1
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_11jtl"]
+gradient = SubResource("Gradient_eawnh")
+width = 12
+height = 12
+
+[sub_resource type="Gradient" id="Gradient_8efqd"]
+interpolation_mode = 1
+colors = PackedColorArray(0, 1, 0, 1, 0, 1, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_eawnh"]
+gradient = SubResource("Gradient_8efqd")
+width = 6
+height = 6
+
+[sub_resource type="Gradient" id="Gradient_pmt41"]
+interpolation_mode = 1
+colors = PackedColorArray(1, 0, 0, 1, 1, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_7dk57"]
+gradient = SubResource("Gradient_pmt41")
+height = 128
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2ha8l"]
+size = Vector2(62, 126)
+
+[node name="Main2" type="Node2D" unique_id=1751436701]
+
+[node name="Anchor2" type="StaticBody2D" parent="." unique_id=435568348]
+position = Vector2(1300, -1373)
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Anchor2" unique_id=581248106]
+shape = SubResource("RectangleShape2D_pmt41")
+
+[node name="Sprite2D" type="Sprite2D" parent="Anchor2" unique_id=1039726715]
+texture = SubResource("GradientTexture2D_pmt41")
+
+[node name="Map" type="TileMapLayer" parent="." unique_id=1025588191]
+tile_map_data = PackedByteArray("AAAAAP//AQAAAAAAAAAAAP7/AQAAAAAAAAAAAP3/AQAAAAAAAAAAAPz/AQAAAAAAAAAAAPv/AQAAAAAAAAAAAPr/AQAAAAAAAAABAPn/AQAAAAAAAAABAPj/AQAAAAAAAAABAPf/AQAAAAAAAAABAPb/AQAAAAAAAAAAAPn/AQAAAAAAAAAAAPj/AQAAAAAAAAAAAPf/AQAAAAAAAAAAAPb/AQAAAAAAAAAAAPX/AQAAAAAAAAAAAPT/AQAAAAAAAAAAAPP/AQAAAAAAAAAAAPL/AQAAAAAAAAABAP//AQAAAAAAAAACAP//AQAAAAAAAAADAP//AQAAAAAAAAAEAP//AQAAAAAAAAAFAP//AQAAAAAAAAAGAP//AQAAAAAAAAAHAP//AQAAAAAAAAAIAP//AQAAAAAAAAAJAP//AQAAAAAAAAAKAP//AQAAAAAAAAALAP//AQAAAAAAAAAMAP//AQAAAAAAAAANAP//AQAAAAAAAAAOAP//AQAAAAAAAAAPAP//AQAAAAAAAAAQAP//AQAAAAAAAAARAP//AQAAAAAAAAASAP//AQAAAAAAAAATAP//AQAAAAAAAAAUAP//AQAAAAAAAAAVAP//AQAAAAAAAAAWAP//AQAAAAAAAAAXAP//AQAAAAAAAAAYAP//AQAAAAAAAAAZAP//AQAAAAAAAAAaAP//AQAAAAAAAAAbAP//AQAAAAAAAAAcAP//AQAAAAAAAAAdAP//AQAAAAAAAAAeAP//AQAAAAAAAAAfAP//AQAAAAAAAAAgAP//AQAAAAAAAAAhAP//AQAAAAAAAAAiAP//AQAAAAAAAAAjAP//AQAAAAAAAAAkAP//AQAAAAAAAAAlAP//AQAAAAAAAAAmAP//AQAAAAAAAAAnAP//AQAAAAAAAAAoAP//AQAAAAAAAAApAP//AQAAAAAAAAAqAP//AQAAAAAAAAArAP//AQAAAAAAAAAsAP//AQAAAAAAAAAtAP//AQAAAAAAAAAAAOH/AQAAAAAAAAAAAOL/AQAAAAAAAAAAAOP/AQAAAAAAAAAAAOT/AQAAAAAAAAAAAOX/AQAAAAAAAAAAAOb/AQAAAAAAAAAAAOf/AQAAAAAAAAAAAOj/AQAAAAAAAAAAAOn/AQAAAAAAAAAAAOr/AQAAAAAAAAAAAOv/AQAAAAAAAAAAAOz/AQAAAAAAAAAAAO3/AQAAAAAAAAAAAO7/AQAAAAAAAAAAAO//AQAAAAAAAAAAAPD/AQAAAAAAAAAAAPH/AQAAAAAAAAAtAP7/AQAAAAAAAAAtAP3/AQAAAAAAAAAtAPz/AQAAAAAAAAAtAPv/AQAAAAAAAAAtAPr/AQAAAAAAAAAtAPn/AQAAAAAAAAAtAPj/AQAAAAAAAAAtAPf/AQAAAAAAAAAtAPb/AQAAAAAAAAAtAPX/AQAAAAAAAAAtAPT/AQAAAAAAAAAtAPP/AQAAAAAAAAAtAPL/AQAAAAAAAAAtAPH/AQAAAAAAAAAtAPD/AQAAAAAAAAAtAO//AQAAAAAAAAAtAO7/AQAAAAAAAAAtAO3/AQAAAAAAAAAtAOz/AQAAAAAAAAAtAOv/AQAAAAAAAAAtAOr/AQAAAAAAAAAtAOn/AQAAAAAAAAAtAOj/AQAAAAAAAAAtAOf/AQAAAAAAAAAtAOb/AQAAAAAAAAAtAOX/AQAAAAAAAAAtAOT/AQAAAAAAAAAtAOP/AQAAAAAAAAAtAOL/AQAAAAAAAAAtAOH/AQAAAAAAAAACAPr/AQAAAAAAAAADAPv/AQAAAAAAAAACAPn/AQAAAAAAAAADAPr/AQAAAAAAAAADAPn/AQAAAAAAAAADAPz/AQAAAAAAAAADAP3/AQAAAAAAAAADAP7/AQAAAAAAAAACAP7/AQAAAAAAAAACAPv/AQAAAAAAAAACAPz/AQAAAAAAAAACAP3/AQAAAAAAAAABAPX/AQAAAAAAAAACAPX/AQAAAAAAAAADAPX/AQAAAAAAAAADAPb/AQAAAAAAAAADAPf/AQAAAAAAAAADAPj/AQAAAAAAAAACAPj/AQAAAAAAAAACAPf/AQAAAAAAAAACAPb/AQAAAAAAAAAPAPL/AQAAAAAAAAAPAPP/AQAAAAAAAAAQAPP/AQAAAAAAAAARAPP/AQAAAAAAAAASAPP/AQAAAAAAAAATAPP/AQAAAAAAAAAUAPP/AQAAAAAAAAAUAPL/AQAAAAAAAAATAPL/AQAAAAAAAAASAPL/AQAAAAAAAAARAPL/AQAAAAAAAAAQAPL/AQAAAAAAAAAPAPT/AQAAAAAAAAAQAPT/AQAAAAAAAAARAPT/AQAAAAAAAAASAPT/AQAAAAAAAAATAPT/AQAAAAAAAAAUAPT/AQAAAAAAAAABAOH/AQAAAAAAAAACAOH/AQAAAAAAAAADAOH/AQAAAAAAAAAEAOH/AQAAAAAAAAAFAOH/AQAAAAAAAAAGAOH/AQAAAAAAAAAHAOH/AQAAAAAAAAAIAOH/AQAAAAAAAAAJAOH/AQAAAAAAAAAKAOH/AQAAAAAAAAALAOH/AQAAAAAAAAAMAOH/AQAAAAAAAAANAOH/AQAAAAAAAAAOAOH/AQAAAAAAAAAPAOH/AQAAAAAAAAAQAOH/AQAAAAAAAAARAOH/AQAAAAAAAAASAOH/AQAAAAAAAAATAOH/AQAAAAAAAAAUAOH/AQAAAAAAAAAVAOH/AQAAAAAAAAAWAOH/AQAAAAAAAAAXAOH/AQAAAAAAAAAYAOH/AQAAAAAAAAAZAOH/AQAAAAAAAAAaAOH/AQAAAAAAAAAbAOH/AQAAAAAAAAAcAOH/AQAAAAAAAAAdAOH/AQAAAAAAAAAeAOH/AQAAAAAAAAAfAOH/AQAAAAAAAAAgAOH/AQAAAAAAAAAhAOH/AQAAAAAAAAAiAOH/AQAAAAAAAAAjAOH/AQAAAAAAAAAkAOH/AQAAAAAAAAAlAOH/AQAAAAAAAAAmAOH/AQAAAAAAAAAnAOH/AQAAAAAAAAAoAOH/AQAAAAAAAAApAOH/AQAAAAAAAAAqAOH/AQAAAAAAAAArAOH/AQAAAAAAAAAsAOH/AQAAAAAAAAABAPv/AQAAAAAAAAABAPz/AQAAAAAAAAABAP3/AQAAAAAAAAABAP7/AQAAAAAAAAABAPr/AQAAAAAAAAABAAAAAQAAAAAAAAACAAAAAQAAAAAAAAADAAAAAQAAAAAAAAAEAAAAAQAAAAAAAAAFAAAAAQAAAAAAAAAGAAAAAQAAAAAAAAAHAAAAAQAAAAAAAAAIAAAAAQAAAAAAAAAJAAAAAQAAAAAAAAAKAAAAAQAAAAAAAAALAAAAAQAAAAAAAAAAAAAAAQAAAAAAAAAMAAAAAQAAAAAAAAANAAAAAQAAAAAAAAAOAAAAAQAAAAAAAAAPAAAAAQAAAAAAAAAQAAAAAQAAAAAAAAARAAAAAQAAAAAAAAASAAAAAQAAAAAAAAATAAAAAQAAAAAAAAAEAP7/AQAAAAAAAAAFAP7/AQAAAAAAAAAGAP7/AQAAAAAAAAAHAP7/AQAAAAAAAAAIAP7/AQAAAAAAAAAJAP7/AQAAAAAAAAAKAP7/AQAAAAAAAAALAP7/AQAAAAAAAAAMAP7/AQAAAAAAAAANAP7/AQAAAAAAAAAOAP7/AQAAAAAAAAAaAPv/AQAAAAAAAAAbAPv/AQAAAAAAAAAcAPv/AQAAAAAAAAAcAPz/AQAAAAAAAAAdAPz/AQAAAAAAAAAbAPz/AQAAAAAAAAAaAPz/AQAAAAAAAAAdAPv/AQAAAAAAAAAdAPr/AQAAAAAAAAAcAPr/AQAAAAAAAAAbAPr/AQAAAAAAAAAaAPr/AQAAAAAAAAAaAPn/AQAAAAAAAAAaAPj/AQAAAAAAAAAaAPf/AQAAAAAAAAAaAPb/AQAAAAAAAAAZAPb/AQAAAAAAAAAZAPf/AQAAAAAAAAAZAPj/AQAAAAAAAAAZAPn/AQAAAAAAAAAZAPr/AQAAAAAAAAAZAPv/AQAAAAAAAAAZAPz/AQAAAAAAAAA=")
+tile_set = SubResource("TileSet_eawnh")
+navigation_enabled = false
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=1819917721 node_paths=PackedStringArray("Gun", "GunEnd", "GunRayCast")]
+position = Vector2(1042, -1008)
+collision_layer = 3
+collision_mask = 3
+platform_floor_layers = 4278190082
+platform_wall_layers = 2
+script = ExtResource("2_pmt41")
+LineWidth = 8.0
+LineDashWidth = 5.0
+Gun = NodePath("Gun")
+GunEnd = NodePath("Gun/Sprite2D")
+GunRayCast = NodePath("Gun/RayCast2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=893801056]
+position = Vector2(0, 25)
+shape = SubResource("RectangleShape2D_bemee")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=1376450068]
+position = Vector2(0, 25)
+texture = SubResource("GradientTexture2D_5wmus")
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1917330969]
+zoom = Vector2(0.5, 0.5)
+
+[node name="Gun" type="Sprite2D" parent="Player" unique_id=1355323112]
+rotation = -0.65449846
+texture = SubResource("GradientTexture2D_11jtl")
+
+[node name="Line2D" type="Line2D" parent="Player/Gun" unique_id=315898617]
+points = PackedVector2Array(0, 0, 56, 0)
+width = 2.0
+default_color = Color(0, 0, 0, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="Player/Gun" unique_id=426076047]
+position = Vector2(56, 0)
+texture = SubResource("GradientTexture2D_eawnh")
+
+[node name="RayCast2D" type="RayCast2D" parent="Player/Gun" unique_id=1777919323]
+enabled = false
+target_position = Vector2(10000, 0)
+collision_mask = 26
+collide_with_areas = true
+
+[node name="Red Area" type="Area2D" parent="." unique_id=2110776497]
+position = Vector2(1631, -128)
+collision_layer = 8
+collision_mask = 8
+
+[node name="Sprite2D" type="Sprite2D" parent="Red Area" unique_id=1214983276]
+modulate = Color(1, 1, 1, 0.4862745)
+texture = SubResource("GradientTexture2D_7dk57")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Red Area" unique_id=2095092464]
+shape = SubResource("RectangleShape2D_2ha8l")
+
+[node name="Anchor" type="StaticBody2D" parent="." unique_id=467740388]
+position = Vector2(1143, -688)
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Anchor" unique_id=241597047]
+shape = SubResource("RectangleShape2D_pmt41")
+
+[node name="Sprite2D" type="Sprite2D" parent="Anchor" unique_id=538467454]
+texture = SubResource("GradientTexture2D_pmt41")
+
+[node name="Anchor3" type="StaticBody2D" parent="." unique_id=397325697]
+position = Vector2(1707, -1249)
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Anchor3" unique_id=1046086551]
+shape = SubResource("RectangleShape2D_pmt41")
+
+[node name="Sprite2D" type="Sprite2D" parent="Anchor3" unique_id=1144640793]
+texture = SubResource("GradientTexture2D_pmt41")
+
+[node name="Anchor4" type="StaticBody2D" parent="." unique_id=1464334674]
+position = Vector2(2205, -1386)
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Anchor4" unique_id=854040306]
+shape = SubResource("RectangleShape2D_pmt41")
+
+[node name="Sprite2D" type="Sprite2D" parent="Anchor4" unique_id=1466047013]
+texture = SubResource("GradientTexture2D_pmt41")

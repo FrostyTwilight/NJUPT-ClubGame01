@@ -2,17 +2,518 @@
 
 [ext_resource type="TileSet" uid="uid://bidghangjuhn" path="res://tilemap/new_tile_set.tres" id="1_ig7tw"]
 [ext_resource type="Texture2D" uid="uid://caintss16wjsg" path="res://textures/player.png" id="2_0xm2m"]
-[ext_resource type="Script" uid="uid://u4ugt1x5xdb5" path="res://scripts/PlayerController.cs" id="2_h2yge"]
 [ext_resource type="Texture2D" uid="uid://70lat7tlksap" path="res://textures/gun.png" id="4_1bvp3"]
-[ext_resource type="Script" uid="uid://dbwueuoe8tofj" path="res://scripts/Gun.cs" id="4_lquwl"]
 [ext_resource type="Texture2D" uid="uid://dybpcgw0ib7i6" path="res://textures/hook.png" id="6_7mycd"]
-[ext_resource type="Script" uid="uid://bjb5qq50g5yw6" path="res://scripts/Hook.cs" id="6_272bh"]
+
+[sub_resource type="CSharpScript" id="CSharpScript_1bvp3"]
+script/source = "using Godot;
+using NJUPTClubGame.scripts;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+public partial class PlayerController : RigidBody2D
+{
+	[Export]
+	public RayCast2D MoveRayCast { get; set; }
+	[Export]
+	public float Speed { get; set; }
+	[Export]
+	public float JumpHight { get; set; }
+	[Export]
+	public bool CanMove { get; set; } = true;
+	[Export]
+	public Gun Gun { get; set; }
+	[Export]
+	public float LineForceFactor { get; set; }
+	[Export]
+	public float LineLenModifierFactor { get; set; }
+	[Export]
+	public float LineBreakLimit { get; set; }
+
+	private CustomFSM fsm;
+
+	private float move_axis;
+	private bool is_jump;
+	private Vector2? modify_vel;
+
+	private bool hook_thrown;
+	private float hook_length;
+
+	private Tween shoot_tween;
+
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		fsm = new();
+
+		fsm.SwitchToState(State_Init);
+	}
+
+	private async Task State_Init(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.SwitchToState(State_Idle);
+	}
+
+	private async Task State_Idle(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.AddTransition(\"FIRE\", State_Fire);
+		fsm.AddTransition(\"JUMP\", State_Jump);
+
+		CanMove = true;
+		hook_thrown = false;
+
+	}
+
+	private async Task State_Jump(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_Idle);
+
+		is_jump = true;
+	}
+
+	private async Task State_Fire(CustomFSM fsm, CancellationToken cancellation)
+	{
+		CanMove = false;
+
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_HookIdle);
+
+		if(!Gun.Fire(out var collider))
+		{
+			fsm.SwitchToState(State_Idle);
+		}
+
+		
+
+		var hook = Gun.Hook;
+		var targetPos = hook.GlobalPosition;
+		hook.GlobalPosition = Gun.GlobalPosition;
+
+		hook_length = (hook.GlobalPosition - targetPos).Length();
+
+		shoot_tween?.Kill();
+		shoot_tween = hook.CreateTween();
+		shoot_tween.TweenProperty(hook, \"global_position\",
+			targetPos, 0.1)
+			.SetEase(Tween.EaseType.Out)
+			.SetTrans(Tween.TransitionType.Quad)
+			.Finished += () =>
+			{
+				fsm.SendEvent(\"HOOK_FIRE\");
+			};
+
+		await fsm.WaitForEvent(\"HOOK_FIRE\");
+	}
+
+	// 终止牵引/断绳子
+	private async Task State_Break(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_Idle);
+
+		Gun.HideHook();
+
+		hook_thrown = false;
+
+
+		shoot_tween?.Kill();
+		modify_vel = Vector2.Zero; //不停会飞出去
+
+		shoot_tween = null;
+
+		await fsm.NextFrame();
+
+	}
+
+	private async Task State_HookJump(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_HookIdle);
+
+		is_jump = true;
+	}
+	private async Task State_HookIdle(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.AddTransition(\"FIRE\", State_Drag); // 左键立刻牵引
+		fsm.AddTransition(\"LINE_BREAK\", State_Break);
+		fsm.AddTransition(\"JUMP\", State_HookJump);
+
+		CanMove = true;
+		hook_thrown = true;
+
+	}
+
+	private async Task State_Drag(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.AddTransition(\"LINE_BREAK\", State_Break);
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_HookIdle);
+
+		hook_length = 0;
+	}
+
+	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public override void _Process(double delta)
+	{
+		base._Process(delta);
+
+		fsm.Update(delta);
+
+		if (CanMove) {
+
+			//左右不分（ ）
+			var move = Input.GetAxis(\"Left\", \"Right\");
+			move_axis = move * Speed;
+		}
+		else
+		{
+			move_axis = 0;
+		}
+
+		if(hook_thrown)
+		{
+			hook_length += Input.GetAxis(\"Line_Down\", \"Line_Up\") * LineLenModifierFactor;
+
+			if(hook_length < 0)
+			{
+				hook_length = 0;
+			}
+		}
+
+		if(Input.IsActionJustPressed(\"Jump\"))
+		{
+			fsm.SendEvent(\"JUMP\");
+		}
+
+		if(Input.IsActionJustPressed(\"Fire\"))
+		{
+			fsm.SendEvent(\"FIRE\");
+		}
+
+		if(Input.IsActionJustPressed(\"Line_Break\"))
+		{
+			fsm.SendEvent(\"LINE_BREAK\");
+		}
+	}
+	public override void _IntegrateForces(PhysicsDirectBodyState2D state)
+	{
+		base._IntegrateForces(state);
+		var vel = state.LinearVelocity;
+		vel.X = move_axis;
+
+		if(is_jump)
+		{
+			is_jump = false;
+			vel.Y = JumpHight;
+		}
+		state.LinearVelocity = vel;
+
+		if(modify_vel != null)
+		{
+			state.LinearVelocity = modify_vel.Value;
+			modify_vel = null;
+		}
+	}
+}
+"
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0xm2m"]
 size = Vector2(64, 128)
 
+[sub_resource type="CSharpScript" id="CSharpScript_lquwl"]
+script/source = "using Godot;
+using System;
+using System.Threading.Tasks;
+
+public partial class Gun : Node2D
+{
+	[Export]
+	public float HookVel { get; set; }
+	[Export]
+	public PlayerController Player { get; set; }
+	[Export]
+	public Node2D Hook { get; set; }
+	[Export]
+	public RayCast2D RayCast2D { get; set; }
+	public bool CanFire => !Hook.Visible;
+
+	public void HideHook()
+	{
+		Hook.Visible = false;
+	}
+
+	// Called every frame. 'delta' is the elapsed time since the previous frame.
+
+	public bool Fire(out GodotObject collider)
+	{
+		RayCast2D.ForceRaycastUpdate();
+
+		collider = null;
+
+		if (!RayCast2D.IsColliding())
+		{
+			return false;
+		}
+
+		GD.Print(\"Colliding!\");
+
+		Hook.GlobalPosition = RayCast2D.GetCollisionPoint();
+		collider = RayCast2D.GetCollider();
+		Hook.Rotation = Rotation + 3.14f / 2;
+		Hook.Visible = true;
+		Player.CanMove = false;
+		return true;
+	}
+
+	public override void _Process(double delta)
+	{
+		//跟随鼠标/hooker
+
+		Vector2 targetPos;
+		if(!CanFire)
+		{
+			targetPos = Hook.GlobalPosition;
+		}
+		else
+		{
+			var mouseScreenPos = GetViewport().GetMousePosition();
+			targetPos = GetCanvasTransform().AffineInverse() * mouseScreenPos;
+		}
+		var offset = targetPos - GlobalPosition;
+
+		var t = Mathf.Atan2(offset.Y, offset.X);
+		Rotation = t;
+	}
+}
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_272bh"]
+
+[sub_resource type="CSharpScript" id="CSharpScript_7mycd"]
+script/source = "using Godot;
+using System;
+
+public partial class Hook : Node2D
+{
+	[Export]
+	public Line2D Line { get; set; }
+	[Export]
+	public Gun Gun { get; set; }
+
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		
+	}
+	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public override void _Process(double delta)
+	{
+		if(Line != null && Visible)
+		{
+			if(Gun != null)
+			{
+				Line.ClearPoints();
+				Line.AddPoint(Vector2.Zero);
+				Line.AddPoint(Line.ToLocal(Gun.GlobalPosition));
+			}
+		}
+	}
+}
+"
+
 [sub_resource type="LabelSettings" id="LabelSettings_272bh"]
 font_size = 32
+
+[sub_resource type="CSharpScript" id="CSharpScript_272bh"]
+script/source = "using Godot;
+using System;
+using System.Linq;
+
+public partial class Rope : Node2D
+{
+	[Export]
+	public Line2D Line { get; set; }
+
+	[Export]
+	public int SegmentsCount { get; set; } = 30;
+
+	[Export]
+	public Vector2 InitialLine { get; set; } = new(500, 0);
+
+	[Export]
+	public float LineLength { get; set; } = 1000;
+	[Export]
+	public int ConstraintIterations { get; set; } = 10;
+	[Export]
+	public float Damping { get; set; } = 0.99f;
+	[Export]
+	public float Friction { get; set; } = 0.3f;
+
+	[Export]
+	public Vector2 Gravity { get; set; } = new(0, 980);
+
+	[Export]
+	public bool PinStart { get; set; }
+
+	[Export]
+	public bool PinEnd { get; set; }
+
+	private Vector2[] old_pos;
+	private Vector2[] new_pos;
+	private Vector2[] override_pos;
+	private float segment_len;
+	private int segment_count;
+
+	public override void _Ready()
+	{
+		base._Ready();
+
+		InitRope(GlobalPosition, GlobalPosition + InitialLine, SegmentsCount);
+	}
+
+	public void SetPoint(int idx, Vector2 pos)
+	{
+		if(idx < 0)
+		{
+			idx = new_pos.Length + idx;
+		}
+		new_pos[idx] = pos;
+		old_pos[idx] = pos;
+	}
+
+	public void InitRope(Vector2 from, Vector2 to, int segmentsCount)
+	{
+		var distance = LineLength;
+		segment_count = segmentsCount;
+		segment_len = distance / segment_count;
+
+		old_pos = new Vector2[segment_count];
+		new_pos = new Vector2[segment_count];
+
+		var over_pos = new Vector2[segment_count];
+		var partVec = (from - to) / segment_count;
+
+		for (int i = 0; i < segment_count; i++)
+		{
+			Vector2 pos;
+			if(i == 0)
+			{
+				pos = from;
+			}
+			else if(i == segment_count - 1)
+			{
+				pos = to;
+			}
+			else
+			{
+				pos = new_pos[i - 1] + partVec;
+			}
+
+			new_pos[i] = pos;
+			old_pos[i] = pos;
+			over_pos[i] = pos;
+		}
+
+		override_pos = over_pos;
+	}
+
+	public override void _PhysicsProcess(double delta)
+	{
+		base._PhysicsProcess(delta);
+
+		var spaceState = GetWorld2D().DirectSpaceState;
+
+		for (int i = 0; i < segment_count; i++)
+		{
+			if(i == 0 && PinStart)
+			{
+				continue;
+			}
+			else if(i + 1 == segment_count && PinEnd)
+			{
+				continue;
+			}
+
+			var vel = (new_pos[i] - old_pos[i]) * Damping;
+			old_pos[i] = new_pos[i];
+			new_pos[i] += vel + Gravity * (float) delta * (float) delta;
+		}
+
+		for (int k = 0; k < ConstraintIterations; k++)
+		{
+			double totalLen = 0;
+
+			for(int i = 0; i < segment_count - 1; i++)
+			{
+				totalLen += (new_pos[i] - new_pos[i + 1]).Length();
+			}
+
+			if(Math.Abs(totalLen - LineLength) / LineLength > 0.001) // 0.1%
+			{
+				segment_len = (float)(segment_len * ((double)LineLength) / totalLen);
+			}
+
+
+			for (int j = 0; j < segment_count - 1; j++)
+			{
+				
+				var diff = new_pos[j + 1] - new_pos[j];
+				float dist = diff.Length();
+				if (dist == 0)
+				{
+					continue;
+				}
+
+				float error = (dist - segment_len) / dist * 0.5f;
+				var correction = diff * error;
+
+				if(!(j == 0 && PinStart))
+				{
+					new_pos[j] += correction;
+				}
+				if (!(j + 2 == segment_count && PinEnd))
+				{
+					new_pos[j + 1] -= correction;
+				}
+			}
+
+			for (int i = 0; i < segment_count; i++)
+			{
+				if (i == 0)
+				{
+					continue;
+				}
+				if (i == segment_count - 1)
+				{
+					continue;
+				}
+
+				var query = PhysicsRayQueryParameters2D.Create(old_pos[i], new_pos[i], 1 << 1);
+				query.CollideWithAreas = false;
+				var result = spaceState.IntersectRay(query);
+				if (result.Count > 0)
+				{
+					var hitPos = (Vector2)result[\"position\"];
+					var normal = (Vector2)result[\"normal\"];
+
+					new_pos[i] = hitPos + normal * 2.0f;
+
+					var frictionVel = new_pos[i] - old_pos[i];
+					old_pos[i] = new_pos[i] - frictionVel * Friction;
+				}
+			}
+		}
+
+		if(override_pos != null)
+		{
+			old_pos = [.. override_pos];
+			new_pos = [.. override_pos];
+			override_pos = null;
+		}
+
+
+		Line.GlobalPosition = Vector2.Zero;
+		Line.Points = new_pos;
+	}
+}
+"
 
 [node name="Main" type="Node2D" unique_id=566842673]
 
@@ -23,14 +524,15 @@ collision_visibility_mode = 1
 navigation_enabled = false
 
 [node name="Player" type="RigidBody2D" parent="." unique_id=833358565 node_paths=PackedStringArray("MoveRayCast", "Gun")]
-position = Vector2(394, -261)
+position = Vector2(1002, -971)
 disable_mode = 2
 collision_priority = 100.0
 lock_rotation = true
-script = ExtResource("2_h2yge")
+script = SubResource("CSharpScript_1bvp3")
 MoveRayCast = NodePath("Move Ray Cast")
 Speed = 400.0
 JumpHight = -600.0
+CanMove = null
 Gun = NodePath("Gun")
 LineForceFactor = 0.35
 LineLenModifierFactor = 10.0
@@ -44,7 +546,8 @@ shape = SubResource("RectangleShape2D_0xm2m")
 
 [node name="Gun" type="Node2D" parent="Player" unique_id=632538084 node_paths=PackedStringArray("Player", "Hook", "RayCast2D")]
 position = Vector2(0, -30)
-script = ExtResource("4_lquwl")
+script = SubResource("CSharpScript_lquwl")
+HookVel = null
 Player = NodePath("..")
 Hook = NodePath("../../Hook")
 RayCast2D = NodePath("RayCast2D")
@@ -61,17 +564,25 @@ scale = Vector2(1.495, 0.104)
 texture = ExtResource("4_1bvp3")
 
 [node name="Main Camera" type="Camera2D" parent="Player" unique_id=132507924]
-zoom = Vector2(0.5, 0.5)
+zoom = Vector2(0.25, 0.25)
 
 [node name="Move Ray Cast" type="RayCast2D" parent="Player" unique_id=2010570842]
 enabled = false
 collision_mask = 2
 
+[node name="Ground Test" type="Area2D" parent="Player" unique_id=630886904]
+position = Vector2(0, 62)
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/Ground Test" unique_id=1628837836]
+shape = SubResource("RectangleShape2D_272bh")
+
 [node name="Hook" type="Node2D" parent="." unique_id=1099103259 node_paths=PackedStringArray("Line", "Gun")]
 visible = false
 position = Vector2(722, -830)
 rotation = 1.3613569
-script = ExtResource("6_272bh")
+script = SubResource("CSharpScript_7mycd")
 Line = NodePath("Line2D")
 Gun = NodePath("../Player/Gun")
 
@@ -97,3 +608,21 @@ text = "A/D：左右移动
 小键盘+/-：调整长度"
 label_settings = SubResource("LabelSettings_272bh")
 horizontal_alignment = 1
+
+[node name="Rope" type="Node2D" parent="." unique_id=2118317193 node_paths=PackedStringArray("Line")]
+position = Vector2(1311, -1173)
+script = SubResource("CSharpScript_272bh")
+Line = NodePath("Line2D")
+SegmentsCount = 400
+InitialLine = null
+LineLength = null
+ConstraintIterations = 5
+Damping = null
+Friction = null
+Gravity = null
+PinStart = true
+PinEnd = true
+
+[node name="Line2D" type="Line2D" parent="Rope" unique_id=1111856423]
+points = PackedVector2Array(262, -54, 0, 0)
+width = 5.0

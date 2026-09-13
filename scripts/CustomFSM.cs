@@ -39,20 +39,43 @@ namespace NJUPTClubGame.scripts
 
 			is_fsm_state.Value = true;
 			current_state = null;
+
 			transitions.Clear();
+			lock (obEvents)
+			{
+				obEvents.Clear();
+			}
 
 			var cts = new CancellationTokenSource();
-			current_state = new(state(this, cts.Token), cts);
+			var task = state(this, cts.Token);
+			var cur = new FsmStateContext(state(this, cts.Token), cts);
+			if (current_state == null)
+			{
+				current_state = cur;
+			}
 
 			is_fsm_state.Value = false;
 
-			var cur = current_state;
-			current_state.Task.ContinueWith(task =>
+			if(cur.Task.IsCompleted)
 			{
-				if(cur == current_state)
+				Callable.From(() =>
 				{
-					SendEvent("FINISHED");
-				}
+					if (cur == current_state)
+					{
+						SendEvent("FINISHED");
+					}
+				}).CallDeferred();
+			}
+
+			cur.Task.ContinueWith(_ =>
+			{
+				Callable.From(() =>
+				{
+					if (cur == current_state)
+					{
+						SendEvent("FINISHED");
+					}
+				}).CallDeferred();
 			}, TaskContinuationOptions.OnlyOnRanToCompletion);
 
 			GD.Print("Switch to " + state.Method.Name);
@@ -62,8 +85,6 @@ namespace NJUPTClubGame.scripts
 				throw new TaskCanceledException();
 			}
 		}
-
-
 
 		public Task WaitForEvent(string ev)
 		{
