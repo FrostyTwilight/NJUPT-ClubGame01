@@ -11,6 +11,19 @@ public partial class Player2 : CharacterBody2D
 	public float Speed { get; set; } = 300.0f;
 	[Export]
 	public float JumpVelocity { get; set; } = -400.0f;
+
+	[Export]
+	public float LineDistanceForceFactor { get; set; } = 1;
+
+	[Export]
+	public float AdditionalForceFactor { get; set; } = 10;
+
+	[Export]
+	public float MinLineDistance { get; set; } = 10;
+	[Export]
+	public float MaxRaycastDistance { get; set; } = 500;
+
+
 	[Export]
 	public Color LineMissing { get; set; } = Colors.Red;
 	[Export]
@@ -21,6 +34,7 @@ public partial class Player2 : CharacterBody2D
 	public float LineWidth { get; set; } = 2;
 	[Export]
 	public float LineDashWidth { get; set; } = 2;
+
 
 
 	[ExportCategory("Nodes")]
@@ -41,6 +55,7 @@ public partial class Player2 : CharacterBody2D
 	private Vector2 raycast_target;
 
 	private float anchorDistance;
+	private Vector2? additionVel;
 
 	public bool CanShootHook => CurrentAnchor == null;
 
@@ -50,13 +65,34 @@ public partial class Player2 : CharacterBody2D
 		fsm.SwitchToState(State_Idle);
 	}
 
+	private void Attach(Node2D anchor)
+	{
+		CurrentAnchor = anchor;
+		var offset = CurrentAnchor.GlobalPosition - GlobalPosition;
+
+		anchorDistance = offset.Length();
+		anchorDistance *= 0.75f;
+
+		if(anchorDistance < MinLineDistance)
+		{
+			anchorDistance = MinLineDistance;
+		}
+
+		//additionVel = offset.Normalized() * (anchorDistance * AdditionalForceFactor);
+	}
+
 	private async Task State_Idle(CustomFSM fsm, CancellationToken cancellationToken)
 	{
 		fsm.AddTransition("FIRE", State_Fire);
+
+		anchorDistance = MaxRaycastDistance;
+
 	}
 
 	private async Task State_Fire(CustomFSM fsm, CancellationToken cancellationToken)
 	{
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_AnchorIdle);
+
 		if(raycast_anchor == null)
 		{
 			if (raycast_prev_anchor == null || raycast_prev_timeout < 0)
@@ -66,15 +102,21 @@ public partial class Player2 : CharacterBody2D
 			raycast_anchor = raycast_prev_anchor;
 		}
 
-		CurrentAnchor = raycast_anchor;
-		anchorDistance = (CurrentAnchor.GlobalPosition - GlobalPosition).Length();
+		Attach(raycast_anchor);
+	}
 
-		fsm.SwitchToState(State_AnchorIdle);
+	private async Task State_TouchNewArchor(CustomFSM fsm, CancellationToken cancellation)
+	{
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_AnchorIdle);
+		fsm.AddTransition("LINE_BREAK", State_AnchorLineBreak);
+
+		Attach(raycast_anchor);
 	}
 
 	private async Task State_AnchorIdle(CustomFSM fsm, CancellationToken cancellationToken)
 	{
 		fsm.AddTransition("LINE_BREAK", State_AnchorLineBreak);
+		fsm.AddTransition("TOUCH_NEW_ANCHOR", State_TouchNewArchor);
 	}
 
 	private async Task State_AnchorLineBreak(CustomFSM fsm, CancellationToken cancellationToken)
@@ -93,17 +135,20 @@ public partial class Player2 : CharacterBody2D
 
 		//处理输入
 		{
-			if(Input.IsActionJustPressed("Fire"))
+			if (Input.IsActionJustPressed("Fire"))
 			{
+				fsm.SendEvent("LINE_BREAK");
 				fsm.SendEvent("FIRE");
 			}
-			if(Input.IsActionJustPressed("Line_Break"))
+			if (Input.IsActionJustPressed("Line_Break"))
 			{
 				fsm.SendEvent("LINE_BREAK");
 			}
 		}
 
 		// 处理 Gun 旋转
+
+		Vector2 gunDir;
 		{
 			Vector2 targetPos;
 
@@ -119,28 +164,44 @@ public partial class Player2 : CharacterBody2D
 			var offset = targetPos - GlobalPosition;
 			var angle = Mathf.Atan2(offset.Y, offset.X);
 			Gun.Rotation = angle;
+			Gun.ForceUpdateTransform();
+			gunDir = offset.Normalized();
+
 		}
 		//处理命中
-		if(CanShootHook)
+
+		GunRayCast.TargetPosition = new(anchorDistance, 0);
+		GunRayCast.ForceRaycastUpdate();
+
+		raycast_anchor = null;
+
+		if (GunRayCast.IsColliding())
 		{
-			raycast_anchor = null;
-
-			GunRayCast.ForceRaycastUpdate();
-
-			if(GunRayCast.IsColliding())
+			raycast_target = GunRayCast.GetCollisionPoint();
+			if (GunRayCast.GetCollider() is CollisionObject2D collision)
 			{
-				raycast_target = GunRayCast.GetCollisionPoint();
-				if(GunRayCast.GetCollider() is CollisionObject2D collision)
+				if (collision.GetCollisionLayerValue(5))
 				{
-					if(collision.GetCollisionLayerValue(5))
+					raycast_anchor = collision;
+					raycast_prev_anchor = raycast_anchor;
+					raycast_prev_timeout = 0.2f;
+
+					if(collision != CurrentAnchor)
 					{
-						raycast_anchor = collision;
-						raycast_prev_anchor = raycast_anchor;
-						raycast_prev_timeout = 0.5f;
+						fsm.SendEvent("TOUCH_NEW_ANCHOR");
 					}
+				}
+				if(collision.GetCollisionLayerValue(4))
+				{
+					fsm.SendEvent("LINE_BREAK");
 				}
 			}
 		}
+		else
+		{
+			raycast_target = gunDir * anchorDistance + GlobalPosition;
+		}
+
 
 		QueueRedraw();
 	}
@@ -175,16 +236,32 @@ public partial class Player2 : CharacterBody2D
 			var offset = CurrentAnchor.GlobalPosition - GlobalPosition;
 			var distance = offset.Length();
 			var dir = offset.Normalized();
-			var dir2 = dir.Rotated(Mathf.Pi / 2);
-			var vel = Mathf.Abs(velocity.Dot(dir2));
-			var a = dir * (vel * vel / distance);
-			velocity += a * (float)delta;
-
-			var vel2 = velocity.Dot(dir);
-			if(vel2 < 0)
+			if (distance > anchorDistance)
 			{
-				velocity += dir * (-vel2);
+				var dir2 = dir.Rotated(Mathf.Pi / 2);
+				var vel = Mathf.Abs(velocity.Dot(dir2));
+				var a = dir * (vel * vel / distance);
+				velocity += a * (float)delta;
+
+				// 超距，拉回
+				var vel2 = velocity.Dot(dir);
+				if (vel2 < 0)
+				{
+					velocity += dir * (-vel2);
+				}
+
+				velocity += dir * (distance - anchorDistance) * LineDistanceForceFactor;
 			}
+			else if(distance < anchorDistance)
+			{
+				velocity += dir * (distance - anchorDistance) * LineDistanceForceFactor;
+			}
+		}
+
+		if(additionVel != null)
+		{
+			velocity += additionVel.Value;
+			additionVel = null;
 		}
 
 		Velocity = velocity;
