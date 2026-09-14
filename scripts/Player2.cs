@@ -58,6 +58,7 @@ public partial class Player2 : CharacterBody2D
 
 	private float anchorDistance;
 	private RespawnPoint respawnPoint;
+	private Vector2? velocity_apply;
 
 	public bool CanShootHook => CurrentAnchor == null;
 
@@ -123,7 +124,8 @@ public partial class Player2 : CharacterBody2D
 	private async Task State_AnchorIdle(CustomFSM fsm, CancellationToken cancellationToken)
 	{
 		fsm.AddTransition("LINE_BREAK", State_AnchorLineBreak);
-		fsm.AddTransition("TOUCH_NEW_ANCHOR", State_TouchNewArchor);
+		fsm.AddTransition("FIRE", State_Dash);
+		//fsm.AddTransition("TOUCH_NEW_ANCHOR", State_TouchNewArchor);
 	}
 
 	private async Task State_AnchorLineBreak(CustomFSM fsm, CancellationToken cancellationToken)
@@ -131,6 +133,12 @@ public partial class Player2 : CharacterBody2D
 		CurrentAnchor = null;
 
 		fsm.SwitchToState(State_Idle);
+	}
+
+	private async Task State_Dash(CustomFSM fsm, CancellationToken cancellationToken)
+	{
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_AnchorLineBreak);
+
 	}
 
 	private async Task State_Respawn(CustomFSM fsm, CancellationToken cancellationToken)
@@ -179,6 +187,10 @@ public partial class Player2 : CharacterBody2D
 			{
 				fsm.SendEvent("LINE_BREAK");
 			}
+			if(Input.IsActionJustPressed("Suicide"))
+			{
+				fsm.SendEvent("RESPAWN");
+			}
 		}
 
 		// 处理 Gun 旋转
@@ -213,7 +225,9 @@ public partial class Player2 : CharacterBody2D
 		if (GunRayCast.IsColliding())
 		{
 			raycast_target = GunRayCast.GetCollisionPoint();
-			if (GunRayCast.GetCollider() is CollisionObject2D collision)
+			var collider = GunRayCast.GetCollider();
+
+			if (collider is CollisionObject2D collision)
 			{
 				if (collision.GetCollisionLayerValue(5))
 				{
@@ -230,6 +244,10 @@ public partial class Player2 : CharacterBody2D
 				{
 					fsm.SendEvent("LINE_BREAK");
 				}
+			}
+			if(collider is TileMapLayer)
+			{
+				fsm.SendEvent("LINE_BREAK");
 			}
 
 		}
@@ -254,6 +272,12 @@ public partial class Player2 : CharacterBody2D
 		if(IsOnFloor())
 		{
 			velocity.X = Mathf.MoveToward(velocity.X, 0, Speed);
+		}
+
+		if(velocity_apply.HasValue)
+		{
+			velocity += velocity_apply.Value;
+			velocity_apply = null;
 		}
 
 		// 锚点约束

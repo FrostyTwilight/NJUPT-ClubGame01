@@ -2,25 +2,51 @@
 
 [ext_resource type="Texture2D" uid="uid://cj04dnpfbv1qc" path="res://textures/tex_white_tile.png" id="1_n70ar"]
 [ext_resource type="Texture2D" uid="uid://bm0hj86j7sxpt" path="res://textures/tex_black_tile.png" id="2_laou1"]
+[ext_resource type="Texture2D" uid="uid://xlg1wrp3bo72" path="res://textures/tile_kill_area.tres" id="3_y2mt5"]
+[ext_resource type="Texture2D" uid="uid://brdbq0irl6cmm" path="res://textures/tile_red_area.tres" id="4_h3uma"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_n70ar"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y2mt5"]
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_72ieh"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_4dohe"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_2ha8l"]
 texture = ExtResource("1_n70ar")
 texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h3uma"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_11jtl"]
 texture = ExtResource("2_laou1")
 texture_region_size = Vector2i(64, 64)
 use_texture_padding = false
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_eawnh"]
+texture = ExtResource("3_y2mt5")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+0:0/0/physics_layer_1/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8efqd"]
+texture = ExtResource("4_h3uma")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+0:0/0/physics_layer_2/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
+
 [resource]
 tile_size = Vector2i(64, 64)
 physics_layer_0/collision_layer = 3
 physics_layer_0/collision_mask = 3
 physics_layer_0/physics_material = SubResource("PhysicsMaterial_n70ar")
-sources/0 = SubResource("TileSetAtlasSource_y2mt5")
-sources/1 = SubResource("TileSetAtlasSource_h3uma")
+physics_layer_1/collision_layer = 32
+physics_layer_1/collision_mask = 32
+physics_layer_1/physics_material = SubResource("PhysicsMaterial_72ieh")
+physics_layer_2/collision_layer = 8
+physics_layer_2/collision_mask = 8
+physics_layer_2/physics_material = SubResource("PhysicsMaterial_4dohe")
+sources/0 = SubResource("TileSetAtlasSource_2ha8l")
+sources/1 = SubResource("TileSetAtlasSource_11jtl")
+sources/2 = SubResource("TileSetAtlasSource_eawnh")
+sources/3 = SubResource("TileSetAtlasSource_8efqd")
