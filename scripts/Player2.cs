@@ -16,6 +16,9 @@ public partial class Player2 : CharacterBody2D
 	public float LineDistanceForceFactor { get; set; } = 1;
 
 	[Export]
+	public float AttachLengthFactor { get; set; } = 0.75f;
+
+	[Export]
 	public float MinLineDistance { get; set; } = 10;
 	[Export]
 	public float MaxRaycastDistance { get; set; } = 500;
@@ -43,6 +46,8 @@ public partial class Player2 : CharacterBody2D
 	public Node2D GunEnd { get; set; }
 	[Export]
 	public RayCast2D GunRayCast { get; set; }
+	[Export]
+	public RayCast2D KillAreaRayCast { get; set; }
 
 	private CustomFSM fsm;
 
@@ -52,12 +57,20 @@ public partial class Player2 : CharacterBody2D
 	private Vector2 raycast_target;
 
 	private float anchorDistance;
+	private RespawnPoint respawnPoint;
 
 	public bool CanShootHook => CurrentAnchor == null;
+
+	public void SetRespawnPoint(RespawnPoint respawn)
+	{
+		respawnPoint = respawn;
+	}
 
 	public override void _Ready()
 	{
 		fsm = new();
+
+		fsm.AddGlobalTransition("RESPAWN", State_Respawn);
 		fsm.SwitchToState(State_Idle);
 	}
 
@@ -67,7 +80,7 @@ public partial class Player2 : CharacterBody2D
 		var offset = CurrentAnchor.GlobalPosition - GlobalPosition;
 
 		anchorDistance = offset.Length();
-		anchorDistance *= 0.75f;
+		anchorDistance *= AttachLengthFactor;
 
 		if(anchorDistance < MinLineDistance)
 		{
@@ -120,6 +133,23 @@ public partial class Player2 : CharacterBody2D
 		fsm.SwitchToState(State_Idle);
 	}
 
+	private async Task State_Respawn(CustomFSM fsm, CancellationToken cancellationToken)
+	{
+		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_Idle);
+
+		if(respawnPoint == null)
+		{
+			// Reload scene
+			GetTree().ReloadCurrentScene();
+			return;
+		}
+
+		CurrentAnchor = null;
+		GlobalPosition = respawnPoint.GetRespawnPosition();
+		Velocity = Vector2.Zero;
+		respawnPoint.OnRespawn(this);
+	}
+
 	public override void _Process(double delta)
 	{
 		raycast_prev_timeout -= (float)delta;
@@ -127,11 +157,22 @@ public partial class Player2 : CharacterBody2D
 
 		fsm.Update(delta);
 
+		//处理死亡
+
+		{
+			if(KillAreaRayCast.IsColliding())
+			{
+				// 寄
+				fsm.SendEvent("RESPAWN");
+
+				GD.Print("Die.");
+			}
+		}
+
 		//处理输入
 		{
 			if (Input.IsActionJustPressed("Fire"))
 			{
-				fsm.SendEvent("LINE_BREAK");
 				fsm.SendEvent("FIRE");
 			}
 			if (Input.IsActionJustPressed("Line_Break"))
@@ -190,6 +231,7 @@ public partial class Player2 : CharacterBody2D
 					fsm.SendEvent("LINE_BREAK");
 				}
 			}
+
 		}
 		else
 		{
