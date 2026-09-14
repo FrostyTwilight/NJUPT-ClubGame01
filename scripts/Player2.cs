@@ -16,9 +16,6 @@ public partial class Player2 : CharacterBody2D
 	public float LineDistanceForceFactor { get; set; } = 1;
 
 	[Export]
-	public float AdditionalForceFactor { get; set; } = 10;
-
-	[Export]
 	public float MinLineDistance { get; set; } = 10;
 	[Export]
 	public float MaxRaycastDistance { get; set; } = 500;
@@ -55,7 +52,6 @@ public partial class Player2 : CharacterBody2D
 	private Vector2 raycast_target;
 
 	private float anchorDistance;
-	private Vector2? additionVel;
 
 	public bool CanShootHook => CurrentAnchor == null;
 
@@ -77,8 +73,6 @@ public partial class Player2 : CharacterBody2D
 		{
 			anchorDistance = MinLineDistance;
 		}
-
-		//additionVel = offset.Normalized() * (anchorDistance * AdditionalForceFactor);
 	}
 
 	private async Task State_Idle(CustomFSM fsm, CancellationToken cancellationToken)
@@ -214,17 +208,8 @@ public partial class Player2 : CharacterBody2D
 		{
 			velocity += GetGravity() * (float)delta;
 		}
-		if (Input.IsActionJustPressed("Jump"))
-		{
-			velocity.Y = JumpVelocity;
-		}
 
-		var move = Input.GetAxis("Left", "Right");
-		if (move != 0)
-		{
-			velocity.X = move * Speed;
-		}
-		else if(CanShootHook && IsOnFloor())
+		if(IsOnFloor())
 		{
 			velocity.X = Mathf.MoveToward(velocity.X, 0, Speed);
 		}
@@ -256,12 +241,6 @@ public partial class Player2 : CharacterBody2D
 			{
 				velocity += dir * (distance - anchorDistance) * LineDistanceForceFactor;
 			}
-		}
-
-		if(additionVel != null)
-		{
-			velocity += additionVel.Value;
-			additionVel = null;
 		}
 
 		Velocity = velocity;

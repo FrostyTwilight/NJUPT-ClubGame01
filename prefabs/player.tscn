@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://oqdfashvpwgw"]
+
+[ext_resource type="Script" uid="uid://cn3kv1uhsjb5r" path="res://scripts/Player2.cs" id="1_72ieh"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bemee"]
+size = Vector2(64, 126)
+
+[sub_resource type="Gradient" id="Gradient_2ha8l"]
+interpolation_mode = 1
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_5wmus"]
+gradient = SubResource("Gradient_2ha8l")
+height = 128
+
+[sub_resource type="Gradient" id="Gradient_eawnh"]
+interpolation_mode = 1
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_11jtl"]
+gradient = SubResource("Gradient_eawnh")
+width = 12
+height = 12
+
+[sub_resource type="Gradient" id="Gradient_8efqd"]
+interpolation_mode = 1
+colors = PackedColorArray(0, 1, 0, 1, 0, 1, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_eawnh"]
+gradient = SubResource("Gradient_8efqd")
+width = 6
+height = 6
+
+[node name="Player" type="CharacterBody2D" unique_id=563547265 node_paths=PackedStringArray("Gun", "GunEnd", "GunRayCast")]
+collision_layer = 3
+collision_mask = 3
+platform_floor_layers = 4278190082
+platform_wall_layers = 2
+script = ExtResource("1_72ieh")
+LineDistanceForceFactor = 0.2
+MaxRaycastDistance = 600.0
+LineWidth = 8.0
+LineDashWidth = 5.0
+Gun = NodePath("Gun")
+GunEnd = NodePath("Gun/Sprite2D")
+GunRayCast = NodePath("Gun/RayCast2D")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=211848682]
+position = Vector2(0, 25)
+shape = SubResource("RectangleShape2D_bemee")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1742164792]
+position = Vector2(0, 25)
+texture = SubResource("GradientTexture2D_5wmus")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=590327116]
+zoom = Vector2(0.5, 0.5)
+
+[node name="Gun" type="Sprite2D" parent="." unique_id=467445293]
+rotation = -0.65449846
+texture = SubResource("GradientTexture2D_11jtl")
+
+[node name="Line2D" type="Line2D" parent="Gun" unique_id=1381983059]
+points = PackedVector2Array(0, 0, 56, 0)
+width = 2.0
+default_color = Color(0, 0, 0, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="Gun" unique_id=891136838]
+position = Vector2(56, 0)
+texture = SubResource("GradientTexture2D_eawnh")
+
+[node name="RayCast2D" type="RayCast2D" parent="Gun" unique_id=801246474]
+enabled = false
+target_position = Vector2(10000, 0)
+collision_mask = 26
+collide_with_areas = true

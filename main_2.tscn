@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://6aawrp5c1bq"]
 
 [ext_resource type="Texture2D" uid="uid://bm0hj86j7sxpt" path="res://textures/tex_black_tile.png" id="2_7dk57"]
-[ext_resource type="Script" uid="uid://cn3kv1uhsjb5r" path="res://scripts/Player2.cs" id="2_pmt41"]
+[ext_resource type="PackedScene" uid="uid://oqdfashvpwgw" path="res://prefabs/player.tscn" id="3_7dk57"]
 [ext_resource type="Texture2D" uid="uid://cj04dnpfbv1qc" path="res://textures/tex_white_tile.png" id="3_pmt41"]
 [ext_resource type="PackedScene" uid="uid://os8ocsiccdy2" path="res://prefabs/anchor.tscn" id="4_7dk57"]
 
@@ -39,35 +39,6 @@ physics_layer_0/physics_material = SubResource("PhysicsMaterial_n70ar")
 sources/0 = SubResource("TileSetAtlasSource_2ha8l")
 sources/1 = SubResource("TileSetAtlasSource_11jtl")
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bemee"]
-size = Vector2(64, 126)
-
-[sub_resource type="Gradient" id="Gradient_2ha8l"]
-interpolation_mode = 1
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_5wmus"]
-gradient = SubResource("Gradient_2ha8l")
-height = 128
-
-[sub_resource type="Gradient" id="Gradient_eawnh"]
-interpolation_mode = 1
-colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_11jtl"]
-gradient = SubResource("Gradient_eawnh")
-width = 12
-height = 12
-
-[sub_resource type="Gradient" id="Gradient_8efqd"]
-interpolation_mode = 1
-colors = PackedColorArray(0, 1, 0, 1, 0, 1, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_eawnh"]
-gradient = SubResource("Gradient_8efqd")
-width = 6
-height = 6
-
 [sub_resource type="Gradient" id="Gradient_pmt41"]
 interpolation_mode = 1
 colors = PackedColorArray(1, 0, 0, 1, 1, 0, 0, 1)
@@ -97,51 +68,8 @@ tile_map_data = PackedByteArray("AAAAAP//AQAAAAAAAAAAAP7/AQAAAAAAAAAAAP3/AQAAAAA
 tile_set = SubResource("TileSet_eawnh")
 navigation_enabled = false
 
-[node name="Player" type="CharacterBody2D" parent="." unique_id=1819917721 node_paths=PackedStringArray("Gun", "GunEnd", "GunRayCast")]
+[node name="Player" parent="." unique_id=563547265 instance=ExtResource("3_7dk57")]
 position = Vector2(51, -2089)
-collision_layer = 3
-collision_mask = 3
-platform_floor_layers = 4278190082
-platform_wall_layers = 2
-script = ExtResource("2_pmt41")
-LineDistanceForceFactor = 0.2
-AdditionalForceFactor = 0.5
-MaxRaycastDistance = 600.0
-LineWidth = 8.0
-LineDashWidth = 5.0
-Gun = NodePath("Gun")
-GunEnd = NodePath("Gun/Sprite2D")
-GunRayCast = NodePath("Gun/RayCast2D")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=893801056]
-position = Vector2(0, 25)
-shape = SubResource("RectangleShape2D_bemee")
-
-[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=1376450068]
-position = Vector2(0, 25)
-texture = SubResource("GradientTexture2D_5wmus")
-
-[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1917330969]
-zoom = Vector2(0.5, 0.5)
-
-[node name="Gun" type="Sprite2D" parent="Player" unique_id=1355323112]
-rotation = -0.65449846
-texture = SubResource("GradientTexture2D_11jtl")
-
-[node name="Line2D" type="Line2D" parent="Player/Gun" unique_id=315898617]
-points = PackedVector2Array(0, 0, 56, 0)
-width = 2.0
-default_color = Color(0, 0, 0, 1)
-
-[node name="Sprite2D" type="Sprite2D" parent="Player/Gun" unique_id=426076047]
-position = Vector2(56, 0)
-texture = SubResource("GradientTexture2D_eawnh")
-
-[node name="RayCast2D" type="RayCast2D" parent="Player/Gun" unique_id=1777919323]
-enabled = false
-target_position = Vector2(10000, 0)
-collision_mask = 26
-collide_with_areas = true
 
 [node name="Red Area2" type="Area2D" parent="." unique_id=736330359]
 position = Vector2(31, -1427)
