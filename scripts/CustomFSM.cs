@@ -40,12 +40,6 @@ namespace NJUPTClubGame.scripts
 			is_fsm_state.Value = true;
 			current_state = null;
 
-			transitions.Clear();
-			lock (obEvents)
-			{
-				obEvents.Clear();
-			}
-
 			var cts = new CancellationTokenSource();
 			var task = state(this, cts.Token);
 			var cur = new FsmStateContext(state(this, cts.Token), cts);
@@ -157,6 +151,12 @@ namespace NJUPTClubGame.scripts
 			is_fsm_state.Value = false;
 			current_state?.Cancellation.Cancel();
 			current_state = null;
+
+			transitions.Clear();
+			lock (obEvents)
+			{
+				obEvents.Clear();
+			}
 		}
 
 		public void Update(double delta)
@@ -164,6 +164,10 @@ namespace NJUPTClubGame.scripts
 			switch_times = 0;
 
 			SendEvent(EVENT_UPDATE);
+		}
+		public void Destroy()
+		{
+			Cancel();
 		}
 	}
 }

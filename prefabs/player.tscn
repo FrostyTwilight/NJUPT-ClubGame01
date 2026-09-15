@@ -42,6 +42,7 @@ AttachLengthFactor = 0.6
 MaxRaycastDistance = 600.0
 LineWidth = 8.0
 LineDashWidth = 5.0
+LinerDamp = 0.5
 Gun = NodePath("Gun")
 GunEnd = NodePath("Gun/Sprite2D")
 GunRayCast = NodePath("Gun/RayCast2D")

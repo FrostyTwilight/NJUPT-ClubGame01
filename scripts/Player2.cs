@@ -34,6 +34,8 @@ public partial class Player2 : CharacterBody2D
 	public float LineWidth { get; set; } = 2;
 	[Export]
 	public float LineDashWidth { get; set; } = 2;
+	[Export]
+	public float LinerDamp { get; set; } = 0.1f;
 
 
 
@@ -124,7 +126,7 @@ public partial class Player2 : CharacterBody2D
 	private async Task State_AnchorIdle(CustomFSM fsm, CancellationToken cancellationToken)
 	{
 		fsm.AddTransition("LINE_BREAK", State_AnchorLineBreak);
-		fsm.AddTransition("FIRE", State_Dash);
+		//fsm.AddTransition("FIRE", State_Dash);
 		//fsm.AddTransition("TOUCH_NEW_ANCHOR", State_TouchNewArchor);
 	}
 
@@ -137,8 +139,32 @@ public partial class Player2 : CharacterBody2D
 
 	private async Task State_Dash(CustomFSM fsm, CancellationToken cancellationToken)
 	{
-		fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_AnchorLineBreak);
+		//fsm.AddTransition(CustomFSM.EVENT_FINISHED, State_AnchorLineBreak);
+		fsm.AddTransition("LINE_BREAK", State_AnchorLineBreak);
+		var initialVec = CurrentAnchor.GlobalPosition - GlobalPosition;
 
+		anchorDistance = 0;
+
+		while(true)
+		{
+			if(CurrentAnchor == null)
+			{
+				break;
+			}
+			var vec = CurrentAnchor.GlobalPosition - GlobalPosition;
+			if(vec.Dot(initialVec) < 0)
+			{
+				break;
+			}
+			if(vec.Length() < MinLineDistance)
+			{
+				break;
+			}
+
+			await fsm.NextFrame();
+		}
+
+		fsm.SwitchToState(State_AnchorLineBreak);
 	}
 
 	private async Task State_Respawn(CustomFSM fsm, CancellationToken cancellationToken)
@@ -263,6 +289,8 @@ public partial class Player2 : CharacterBody2D
 	public override void _PhysicsProcess(double delta)
 	{
 		Vector2 velocity = Velocity;
+		
+		
 
 		if (!IsOnFloor())
 		{
@@ -271,8 +299,43 @@ public partial class Player2 : CharacterBody2D
 
 		if(IsOnFloor())
 		{
+			if(Input.IsActionJustPressed("Jump"))
+			{
+				fsm.SendEvent("LINE_BREAK");
+				velocity.Y = JumpVelocity;
+			}
+
 			velocity.X = Mathf.MoveToward(velocity.X, 0, Speed);
 		}
+		else if(!CanShootHook)
+		{
+			if (Input.IsActionJustPressed("Jump"))
+			{
+				fsm.SendEvent("LINE_BREAK");
+				velocity.Y = JumpVelocity;
+			}
+
+		}
+
+		if (CanShootHook || IsOnFloor())
+		{
+
+			var move_axis = Input.GetAxis("Left", "Right");
+			var move_vel = move_axis * Speed;
+
+			if ((velocity.X < 0 && move_vel > 0) ||
+				(velocity.X > 0 && move_vel < 0) ||
+				(velocity.X > 0 && move_vel > 0 && velocity.X < move_vel) ||
+				(velocity.X < 0 && move_vel < 0 && velocity.X > move_vel) ||
+				(velocity.X == 0 && move_vel != 0)
+				)
+			{
+				velocity.X = move_vel;
+			}
+
+		}
+
+		velocity *= (float)(1 - LinerDamp * delta);
 
 		if(velocity_apply.HasValue)
 		{
