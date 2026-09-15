@@ -44,10 +44,10 @@ offset_left = -33.0
 offset_top = -495.0
 offset_right = 863.0
 offset_bottom = -210.0
-text = "本游戏使用抓钩移动
+text = "A/D 左右移动 Space跳跃
 眼前所见的绿色方块为锚点
 对准锚点按下鼠标左键可发射绳索
-按下鼠标可剪断绳索
+按下鼠标右键/Space可剪断绳索
 
 "
 label_settings = ExtResource("5_lquwl")
