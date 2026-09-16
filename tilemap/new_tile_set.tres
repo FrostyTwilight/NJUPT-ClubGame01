@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bm0hj86j7sxpt" path="res://textures/tex_black_tile.png" id="2_laou1"]
 [ext_resource type="Texture2D" uid="uid://xlg1wrp3bo72" path="res://textures/tile_kill_area.tres" id="3_y2mt5"]
 [ext_resource type="Texture2D" uid="uid://brdbq0irl6cmm" path="res://textures/tile_red_area.tres" id="4_h3uma"]
+[ext_resource type="Texture2D" uid="uid://bmdl64a243oaj" path="res://textures/tile_tips.tres" id="5_h3uma"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_n70ar"]
 
@@ -35,6 +36,11 @@ texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 0:0/0/physics_layer_2/polygon_0/points = PackedVector2Array(-32, -32, 32, -32, 32, 32, -32, 32)
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_27jsq"]
+texture = ExtResource("5_h3uma")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+
 [resource]
 tile_size = Vector2i(64, 64)
 physics_layer_0/collision_layer = 3
@@ -50,3 +56,4 @@ sources/0 = SubResource("TileSetAtlasSource_2ha8l")
 sources/1 = SubResource("TileSetAtlasSource_11jtl")
 sources/2 = SubResource("TileSetAtlasSource_eawnh")
 sources/3 = SubResource("TileSetAtlasSource_8efqd")
+sources/4 = SubResource("TileSetAtlasSource_27jsq")

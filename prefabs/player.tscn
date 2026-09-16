@@ -79,7 +79,8 @@ collision_mask = 26
 collide_with_areas = true
 
 [node name="Kill Detect" type="RayCast2D" parent="." unique_id=422446934]
-position = Vector2(0, 53)
+position = Vector2(1, -52)
+target_position = Vector2(0, 154)
 collision_mask = 32
 hit_from_inside = true
 collide_with_areas = true
