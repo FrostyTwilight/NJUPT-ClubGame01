@@ -312,7 +312,13 @@ public partial class Player2 : CharacterBody2D
 			if (Input.IsActionJustPressed("Jump"))
 			{
 				fsm.SendEvent("LINE_BREAK");
-				velocity.Y = JumpVelocity;
+
+				if (velocity.Y > 0)
+				{
+					velocity.Y = 0;
+				}
+
+				velocity.Y += JumpVelocity;
 			}
 
 		}
