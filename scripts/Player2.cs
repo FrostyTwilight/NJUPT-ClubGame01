@@ -216,7 +216,7 @@ public partial class Player2 : CharacterBody2D
 			}
 			if(Input.IsActionJustPressed("Suicide"))
 			{
-				fsm.SendEvent("RESPAWN");
+				fsm.SendEvent("PLAYER RESPAWN");
 			}
 		}
 
