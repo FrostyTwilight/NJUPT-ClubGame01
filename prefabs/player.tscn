@@ -31,6 +31,9 @@ gradient = SubResource("Gradient_8efqd")
 width = 6
 height = 6
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_72ieh"]
+size = Vector2(48, 111)
+
 [node name="Player" type="CharacterBody2D" unique_id=563547265 node_paths=PackedStringArray("Gun", "GunEnd", "GunRayCast", "KillAreaRayCast")]
 collision_layer = 7
 collision_mask = 3
@@ -78,9 +81,10 @@ target_position = Vector2(10000, 0)
 collision_mask = 26
 collide_with_areas = true
 
-[node name="Kill Detect" type="RayCast2D" parent="." unique_id=422446934]
-position = Vector2(1, -39)
-target_position = Vector2(-1, 128)
+[node name="Kill Detect" type="Area2D" parent="." unique_id=1004016768]
+collision_layer = 0
 collision_mask = 32
-hit_from_inside = true
-collide_with_areas = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Kill Detect" unique_id=416464860]
+position = Vector2(0, 24.5)
+shape = SubResource("RectangleShape2D_72ieh")

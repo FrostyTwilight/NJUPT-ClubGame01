@@ -208,6 +208,7 @@ joypads/ignore_joypad_on_unfocused_application=true
 2d_physics/layer_4="Red Area"
 2d_physics/layer_5="Green Area"
 2d_physics/layer_6="Kill Area"
+2d_physics/layer_7="Boss"
 
 [physics]
 

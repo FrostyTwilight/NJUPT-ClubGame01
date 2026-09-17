@@ -14,6 +14,8 @@ namespace NJUPTClubGame.scripts
 		public const string EVENT_UPDATE = "UPDATE";
 		public const string EVENT_FINISHED = "FINISHED";
 
+		private static readonly List<CustomFSM> fsms = [];
+
 		public delegate Task FsmState(CustomFSM fsm, CancellationToken cancellationToken);
 
 		private record class FsmStateContext(Task Task, 
@@ -27,9 +29,23 @@ namespace NJUPTClubGame.scripts
 
 		private int switch_times = 0;
 
+		private void TryThrowCancel(FsmStateContext cacheContext, bool noException)
+		{
+			if(noException)
+			{
+				return;
+			}
+			if(is_fsm_state.Value)
+			{
+				cacheContext?.Cancellation?.Token.ThrowIfCancellationRequested();
+			}
+		}
+
+
 		public void SwitchToState(FsmState state, bool noException = false)
 		{
 			var in_state = is_fsm_state.Value;
+
 			Cancel(); //终止当前 state
 
 			if(Interlocked.Increment(ref switch_times) > 10000)
@@ -72,6 +88,14 @@ namespace NJUPTClubGame.scripts
 				}).CallDeferred();
 			}, TaskContinuationOptions.OnlyOnRanToCompletion);
 
+			cur.Task.ContinueWith(_ =>
+			{
+				Callable.From(() =>
+				{
+					GD.PrintErr(cur.Task.Exception.ToString());
+				}).CallDeferred();
+			}, TaskContinuationOptions.OnlyOnFaulted);
+
 			GD.Print("Switch to " + state.Method.Name);
 
 			if (in_state && !noException)
@@ -100,17 +124,20 @@ namespace NJUPTClubGame.scripts
 			return WaitForEvent(EVENT_UPDATE);
 		}
 
-		public void SendEvent(string ev)
+		public void SendEvent(string ev, bool noException = true)
 		{
+			var curState = current_state;
 			if(transitions.TryGetValue(ev, out var state))
 			{
-				SwitchToState(state);
+				SwitchToState(state, true);
+				TryThrowCancel(curState, noException);
 				return;
 			}
 			
 			if(global_events.TryGetValue(ev, out state))
 			{
-				SwitchToState(state);
+				SwitchToState(state, true);
+				TryThrowCancel(curState, noException);
 				return;
 			}
 
@@ -135,15 +162,18 @@ namespace NJUPTClubGame.scripts
 					{ }
 				}
 			}
+
+			TryThrowCancel(curState, noException);
+
 		}
 
 		public void AddGlobalTransition(string ev, FsmState state)
 		{
-			global_events.Add(ev, state);
+			global_events[ev] = state;
 		}
 		public void AddTransition(string ev, FsmState state)
 		{
-			transitions.Add(ev, state);
+			transitions[ev] = state;
 		}
 
 		public void Cancel()
@@ -159,15 +189,39 @@ namespace NJUPTClubGame.scripts
 			}
 		}
 
+		public static void BroadcastEvent(string ev)
+		{
+			foreach(var v in fsms.ToArray())
+			{
+				v.SendEvent(ev);
+			}
+		}
+
 		public void Update(double delta)
 		{
 			switch_times = 0;
 
 			SendEvent(EVENT_UPDATE);
 		}
+
+		public void Notification(int what)
+		{
+			if(what == GodotObject.NotificationPredelete)
+			{
+				Destroy();
+			}
+		}
+
+		public CustomFSM()
+		{
+			fsms.Add(this);
+		}
+
 		public void Destroy()
 		{
 			Cancel();
+
+			fsms.Remove(this);
 		}
 	}
 }

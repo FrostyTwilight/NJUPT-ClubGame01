@@ -6,6 +6,10 @@
 [ext_resource type="PackedScene" uid="uid://os8ocsiccdy2" path="res://prefabs/anchor.tscn" id="4_1bvp3"]
 [ext_resource type="LabelSettings" uid="uid://hgu77u4l21pu" path="res://new_label_settings.tres" id="5_lquwl"]
 [ext_resource type="Script" uid="uid://bquts1vsno7ru" path="res://scripts/RespawnPoint.cs" id="6_7mycd"]
+[ext_resource type="Script" uid="uid://rrp0n3j6fawj" path="res://scripts/Boss.cs" id="7_5vw27"]
+[ext_resource type="Texture2D" uid="uid://5whpcectxlnn" path="res://textures/boss.tres" id="7_272bh"]
+[ext_resource type="PackedScene" uid="uid://y3t1cifxisru" path="res://prefabs/boss_bullet.tscn" id="9_4c57u"]
+[ext_resource type="Texture2D" uid="uid://xlg1wrp3bo72" path="res://textures/tile_kill_area.tres" id="9_kek77"]
 
 [sub_resource type="Animation" id="Animation_7mycd"]
 length = 0.001
@@ -48,6 +52,33 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_272bh"]
 size = Vector2(54, 443)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5vw27"]
+size = Vector2(66, 131)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_5vw27"]
+particle_flag_disable_z = true
+angle_min = -720.0
+angle_max = 720.0
+spread = 180.0
+flatness = 0.265
+initial_velocity_min = 200.0
+initial_velocity_max = 400.0
+gravity = Vector3(0, 0, 0)
+linear_accel_min = 35.229996
+linear_accel_max = 99.99999
+radial_accel_min = 46.01
+radial_accel_max = 99.99999
+tangential_accel_min = -2.2351742e-06
+tangential_accel_max = -2.2351742e-06
+scale_max = 5.0
+color = Color(0.5803922, 0.8235294, 0.29411766, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kek77"]
+size = Vector2(3384, 55)
+
+[sub_resource type="LabelSettings" id="LabelSettings_4c57u"]
+font_size = 128
+
 [node name="Main" type="Node2D" unique_id=807117355]
 
 [node name="map" type="TileMapLayer" parent="." unique_id=1366304736]
@@ -55,7 +86,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAIAAQAAAAA
 tile_set = ExtResource("1_ig7tw")
 
 [node name="Player" parent="." unique_id=563547265 instance=ExtResource("2_0xm2m")]
-position = Vector2(3153, -3620)
+position = Vector2(90, -108)
 collision_mask = 7
 
 [node name="Anchors" type="Node2D" parent="." unique_id=102116651]
@@ -145,6 +176,78 @@ position = Vector2(1283, -2172)
 
 [node name="Anchor25" parent="Anchors" unique_id=1230434331 instance=ExtResource("4_1bvp3")]
 position = Vector2(603, -2887)
+
+[node name="Anchor26" parent="Anchors" unique_id=1548064651 instance=ExtResource("4_1bvp3")]
+position = Vector2(-3254, -2530)
+
+[node name="Anchor27" parent="Anchors" unique_id=1266803749 instance=ExtResource("4_1bvp3")]
+position = Vector2(762, -3997)
+
+[node name="Anchor28" parent="Anchors" unique_id=2036181383 instance=ExtResource("4_1bvp3")]
+position = Vector2(2518, -3984)
+
+[node name="Anchor29" parent="Anchors" unique_id=1933590784 instance=ExtResource("4_1bvp3")]
+position = Vector2(1201, -4270)
+
+[node name="Anchor30" parent="Anchors" unique_id=1122130755 instance=ExtResource("4_1bvp3")]
+position = Vector2(2029, -4279)
+
+[node name="Anchor31" parent="Anchors" unique_id=2004782738 instance=ExtResource("4_1bvp3")]
+position = Vector2(1661, -4583)
+
+[node name="Anchor32" parent="Anchors" unique_id=13577725 instance=ExtResource("4_1bvp3")]
+position = Vector2(2083, -4930)
+
+[node name="Anchor33" parent="Anchors" unique_id=674264377 instance=ExtResource("4_1bvp3")]
+position = Vector2(1220, -5004)
+
+[node name="Anchor34" parent="Anchors" unique_id=469868109 instance=ExtResource("4_1bvp3")]
+position = Vector2(2581, -5349)
+
+[node name="Anchor35" parent="Anchors" unique_id=2060678713 instance=ExtResource("4_1bvp3")]
+position = Vector2(756, -5507)
+
+[node name="Anchor36" parent="Anchors" unique_id=1208916246 instance=ExtResource("4_1bvp3")]
+position = Vector2(1646, -3896)
+
+[node name="Anchor37" parent="Anchors" unique_id=2056554186 instance=ExtResource("4_1bvp3")]
+position = Vector2(713, -4493)
+
+[node name="Anchor38" parent="Anchors" unique_id=1935883317 instance=ExtResource("4_1bvp3")]
+position = Vector2(1682, -5498)
+
+[node name="Anchor39" parent="Anchors" unique_id=692920189 instance=ExtResource("4_1bvp3")]
+position = Vector2(2521, -4533)
+
+[node name="Anchor40" parent="Anchors" unique_id=905066717 instance=ExtResource("4_1bvp3")]
+position = Vector2(2201, -5841)
+
+[node name="Anchor41" parent="Anchors" unique_id=1055481375 instance=ExtResource("4_1bvp3")]
+position = Vector2(1174, -5938)
+
+[node name="Anchor42" parent="Anchors" unique_id=798513574 instance=ExtResource("4_1bvp3")]
+position = Vector2(372, -5964)
+
+[node name="Anchor43" parent="Anchors" unique_id=545394342 instance=ExtResource("4_1bvp3")]
+position = Vector2(356, -4987)
+
+[node name="Anchor44" parent="Anchors" unique_id=1127940699 instance=ExtResource("4_1bvp3")]
+position = Vector2(2902, -5835)
+
+[node name="Anchor45" parent="Anchors" unique_id=1829884133 instance=ExtResource("4_1bvp3")]
+position = Vector2(2865, -4907)
+
+[node name="Anchor46" parent="Anchors" unique_id=2045871486 instance=ExtResource("4_1bvp3")]
+position = Vector2(315, -4186)
+
+[node name="Anchor47" parent="Anchors" unique_id=1706500408 instance=ExtResource("4_1bvp3")]
+position = Vector2(795, -6300)
+
+[node name="Anchor48" parent="Anchors" unique_id=423210366 instance=ExtResource("4_1bvp3")]
+position = Vector2(1736, -6309)
+
+[node name="Anchor49" parent="Anchors" unique_id=2006442413 instance=ExtResource("4_1bvp3")]
+position = Vector2(2587, -6245)
 
 [node name="RespawnPoints" type="Node2D" parent="." unique_id=53061776]
 
@@ -282,74 +385,107 @@ offset_bottom = -1752.0
 text = "在合适的时候断开绳子"
 label_settings = ExtResource("5_lquwl")
 
-[node name="Anchor" parent="." unique_id=1548064651 instance=ExtResource("4_1bvp3")]
-position = Vector2(-3254, -2530)
+[node name="Boss" type="Area2D" parent="." unique_id=562480207 node_paths=PackedStringArray("HitExp", "BossPoints", "StartPoint", "FloorRedArea", "BossWin")]
+position = Vector2(2851, -3709)
+collision_layer = 64
+collision_mask = 4
+script = ExtResource("7_5vw27")
+BulletVel = 500.0
+HitExp = NodePath("Hit Exp")
+BossPoints = NodePath("../Boss Points")
+StartPoint = NodePath("../Boss Start Point")
+FloorRedArea = NodePath("../Boss Red Area/Boss Red Area 2")
+BossWin = NodePath("../Boss Win")
+BossBulletPrefab = ExtResource("9_4c57u")
 
-[node name="Anchor2" parent="." unique_id=1266803749 instance=ExtResource("4_1bvp3")]
-position = Vector2(762, -3997)
+[node name="Sprite2D" type="Sprite2D" parent="Boss" unique_id=2021434825]
+texture = ExtResource("7_272bh")
 
-[node name="Anchor3" parent="." unique_id=2036181383 instance=ExtResource("4_1bvp3")]
-position = Vector2(2518, -3984)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boss" unique_id=156791696]
+position = Vector2(0, 0.5)
+shape = SubResource("RectangleShape2D_5vw27")
 
-[node name="Anchor4" parent="." unique_id=1933590784 instance=ExtResource("4_1bvp3")]
-position = Vector2(1201, -4270)
+[node name="Node2D" type="Node2D" parent="Boss" unique_id=281921950]
 
-[node name="Anchor5" parent="." unique_id=1122130755 instance=ExtResource("4_1bvp3")]
-position = Vector2(2029, -4279)
+[node name="Hit Exp" type="GPUParticles2D" parent="Boss" unique_id=1513287324]
+position = Vector2(-2, 2)
+emitting = false
+amount = 200
+lifetime = 3.0
+one_shot = true
+explosiveness = 1.0
+randomness = 0.55
+visibility_rect = Rect2(-4999, -4999, 9999, 9999)
+process_material = SubResource("ParticleProcessMaterial_5vw27")
 
-[node name="Anchor6" parent="." unique_id=2004782738 instance=ExtResource("4_1bvp3")]
-position = Vector2(1661, -4583)
+[node name="Boss Points" type="Node2D" parent="." unique_id=1621782032]
+position = Vector2(1611, -5014)
 
-[node name="Anchor7" parent="." unique_id=13577725 instance=ExtResource("4_1bvp3")]
-position = Vector2(2083, -4930)
+[node name="Node2D9" type="Node2D" parent="Boss Points" unique_id=397222782]
+position = Vector2(517, 1005)
 
-[node name="Anchor8" parent="." unique_id=674264377 instance=ExtResource("4_1bvp3")]
-position = Vector2(1220, -5004)
+[node name="Node2D6" type="Node2D" parent="Boss Points" unique_id=1941716429]
+position = Vector2(60, -917)
 
-[node name="Anchor9" parent="." unique_id=469868109 instance=ExtResource("4_1bvp3")]
-position = Vector2(2581, -5349)
+[node name="Node2D5" type="Node2D" parent="Boss Points" unique_id=1526225836]
+position = Vector2(108, -146)
 
-[node name="Anchor10" parent="." unique_id=2060678713 instance=ExtResource("4_1bvp3")]
-position = Vector2(756, -5507)
+[node name="Node2D4" type="Node2D" parent="Boss Points" unique_id=1569676475]
+position = Vector2(950, -826)
 
-[node name="Anchor11" parent="." unique_id=1208916246 instance=ExtResource("4_1bvp3")]
-position = Vector2(1646, -3896)
+[node name="Node2D3" type="Node2D" parent="Boss Points" unique_id=647766501]
+position = Vector2(-811, -867)
 
-[node name="Anchor12" parent="." unique_id=2056554186 instance=ExtResource("4_1bvp3")]
-position = Vector2(713, -4493)
+[node name="Node2D2" type="Node2D" parent="Boss Points" unique_id=1054456891]
+position = Vector2(-859, 793)
 
-[node name="Anchor13" parent="." unique_id=1935883317 instance=ExtResource("4_1bvp3")]
-position = Vector2(1682, -5498)
+[node name="Node2D" type="Node2D" parent="Boss Points" unique_id=1644233590]
+position = Vector2(38, 786)
 
-[node name="Anchor14" parent="." unique_id=692920189 instance=ExtResource("4_1bvp3")]
-position = Vector2(2521, -4533)
+[node name="Node2D8" type="Node2D" parent="Boss Points" unique_id=686156641]
+position = Vector2(-860, -39)
 
-[node name="Anchor15" parent="." unique_id=905066717 instance=ExtResource("4_1bvp3")]
-position = Vector2(2201, -5841)
+[node name="Node2D7" type="Node2D" parent="Boss Points" unique_id=1774585281]
+position = Vector2(935, 61)
 
-[node name="Anchor16" parent="." unique_id=1055481375 instance=ExtResource("4_1bvp3")]
-position = Vector2(1174, -5938)
+[node name="Boss Start Point" type="Node2D" parent="." unique_id=374381087]
+position = Vector2(2850, -3709)
 
-[node name="Anchor17" parent="." unique_id=798513574 instance=ExtResource("4_1bvp3")]
-position = Vector2(372, -5964)
+[node name="Boss Red Area" type="Node2D" parent="." unique_id=1725417260]
+position = Vector2(1627, -3594)
 
-[node name="Anchor18" parent="." unique_id=545394342 instance=ExtResource("4_1bvp3")]
-position = Vector2(356, -4987)
+[node name="Boss Red Area 2" type="Area2D" parent="Boss Red Area" unique_id=794519529]
+collision_layer = 32
+collision_mask = 0
 
-[node name="Anchor19" parent="." unique_id=1127940699 instance=ExtResource("4_1bvp3")]
-position = Vector2(2902, -5835)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Boss Red Area/Boss Red Area 2" unique_id=1804967674]
+position = Vector2(-5, 62.5)
+shape = SubResource("RectangleShape2D_kek77")
 
-[node name="Anchor20" parent="." unique_id=1829884133 instance=ExtResource("4_1bvp3")]
-position = Vector2(2865, -4907)
+[node name="Sprite2D" type="Sprite2D" parent="Boss Red Area/Boss Red Area 2" unique_id=1537671635]
+position = Vector2(1, 62)
+scale = Vector2(53.658474, 1.0067582)
+texture = ExtResource("9_kek77")
 
-[node name="Anchor21" parent="." unique_id=2045871486 instance=ExtResource("4_1bvp3")]
-position = Vector2(315, -4186)
+[node name="Boss Win" type="Node2D" parent="." unique_id=1504905581]
+visible = false
+position = Vector2(2628, -4158)
 
-[node name="Anchor22" parent="." unique_id=1706500408 instance=ExtResource("4_1bvp3")]
-position = Vector2(795, -6300)
+[node name="Label" type="Label" parent="Boss Win" unique_id=2142509620]
+offset_right = 512.0
+offset_bottom = 355.0
+text = "你赢了
+感谢游玩"
+label_settings = SubResource("LabelSettings_4c57u")
+horizontal_alignment = 1
 
-[node name="Anchor23" parent="." unique_id=423210366 instance=ExtResource("4_1bvp3")]
-position = Vector2(1736, -6309)
-
-[node name="Anchor24" parent="." unique_id=2006442413 instance=ExtResource("4_1bvp3")]
-position = Vector2(2587, -6245)
+[node name="Label" type="Label" parent="." unique_id=499278619]
+offset_left = 2487.0
+offset_top = -3776.0
+offset_right = 2799.0
+offset_bottom = -3635.0
+text = "这是 Boss ->
+触碰Boss以攻击
+小心 Boss 的技能"
+label_settings = ExtResource("5_lquwl")
+horizontal_alignment = 2

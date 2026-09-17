@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://y3t1cifxisru"]
+
+[ext_resource type="Texture2D" uid="uid://xlg1wrp3bo72" path="res://textures/tile_kill_area.tres" id="1_qnssu"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4c57u"]
+size = Vector2(2, 2)
+
+[node name="Boss Bullet" type="RigidBody2D" unique_id=1819508049]
+collision_layer = 0
+collision_mask = 0
+gravity_scale = 0.0
+can_sleep = false
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=360669693]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("1_qnssu")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1803019377]
+shape = SubResource("RectangleShape2D_4c57u")

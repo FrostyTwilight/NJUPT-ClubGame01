@@ -49,7 +49,7 @@ public partial class Player2 : CharacterBody2D
 	[Export]
 	public RayCast2D GunRayCast { get; set; }
 	[Export]
-	public RayCast2D KillAreaRayCast { get; set; }
+	public Area2D KillAreaRayCast { get; set; }
 
 	private CustomFSM fsm;
 
@@ -73,8 +73,22 @@ public partial class Player2 : CharacterBody2D
 	{
 		fsm = new();
 
-		fsm.AddGlobalTransition("RESPAWN", State_Respawn);
+		fsm.AddGlobalTransition("PLAYER RESPAWN", State_Respawn);
 		fsm.SwitchToState(State_Idle);
+
+		KillAreaRayCast.AreaEntered += KillAreaRayCast_AreaEntered;
+		KillAreaRayCast.BodyEntered += KillAreaRayCast_BodyEntered;
+
+	}
+
+	private void KillAreaRayCast_BodyEntered(Node2D body)
+	{
+		CustomFSM.BroadcastEvent("PLAYER RESPAWN");
+	}
+
+	private void KillAreaRayCast_AreaEntered(Area2D area)
+	{
+		CustomFSM.BroadcastEvent("PLAYER RESPAWN");
 	}
 
 	private void Attach(Node2D anchor)
@@ -173,8 +187,6 @@ public partial class Player2 : CharacterBody2D
 
 		if(respawnPoint == null)
 		{
-			// Reload scene
-			GetTree().ReloadCurrentScene();
 			return;
 		}
 
@@ -191,17 +203,6 @@ public partial class Player2 : CharacterBody2D
 
 		fsm.Update(delta);
 
-		//处理死亡
-
-		{
-			if(KillAreaRayCast.IsColliding())
-			{
-				// 寄
-				fsm.SendEvent("RESPAWN");
-
-				GD.Print("Die.");
-			}
-		}
 
 		//处理输入
 		{
@@ -380,6 +381,11 @@ public partial class Player2 : CharacterBody2D
 
 		Velocity = velocity;
 		MoveAndSlide();
+	}
+
+	public override void _Notification(int what)
+	{
+		fsm?.Notification(what);
 	}
 
 	public override void _Draw()
