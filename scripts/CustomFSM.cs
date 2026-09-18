@@ -15,6 +15,7 @@ namespace NJUPTClubGame.scripts
 		public const string EVENT_FINISHED = "FINISHED";
 
 		private static readonly List<CustomFSM> fsms = [];
+		private readonly Thread mainThread;
 
 		public delegate Task FsmState(CustomFSM fsm, CancellationToken cancellationToken);
 
@@ -41,10 +42,22 @@ namespace NJUPTClubGame.scripts
 			}
 		}
 
-
 		public void SwitchToState(FsmState state, bool noException = false)
 		{
 			var in_state = is_fsm_state.Value;
+			
+			if (Thread.CurrentThread != mainThread)
+			{
+				Callable.From(() => SwitchToState(state, true)).CallDeferred();
+				GD.PrintErr("Call switch to state from a non-main thread");
+
+				if (in_state && !noException)
+				{
+					throw new TaskCanceledException();
+				}
+				return;
+			}
+			
 
 			Cancel(); //终止当前 state
 
@@ -58,7 +71,7 @@ namespace NJUPTClubGame.scripts
 
 			var cts = new CancellationTokenSource();
 			var task = state(this, cts.Token);
-			var cur = new FsmStateContext(state(this, cts.Token), cts);
+			var cur = new FsmStateContext(task, cts);
 			if (current_state == null)
 			{
 				current_state = cur;
@@ -214,6 +227,8 @@ namespace NJUPTClubGame.scripts
 
 		public CustomFSM()
 		{
+			mainThread = Thread.CurrentThread;
+
 			fsms.Add(this);
 		}
 

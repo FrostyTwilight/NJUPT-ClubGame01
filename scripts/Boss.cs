@@ -256,7 +256,7 @@ public partial class Boss : Area2D
 
 		var dir = laserTarget.Value.Normalized();
 
-		await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationToken);
+		await Task.Delay(TimeSpan.FromSeconds(0.3), cancellationToken);
 
 		laserColor = LaserFireColor;
 

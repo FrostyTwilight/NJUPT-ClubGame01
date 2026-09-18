@@ -86,7 +86,7 @@ tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAIAAQAAAAA
 tile_set = ExtResource("1_ig7tw")
 
 [node name="Player" parent="." unique_id=563547265 instance=ExtResource("2_0xm2m")]
-position = Vector2(90, -108)
+position = Vector2(130, -94)
 collision_mask = 7
 
 [node name="Anchors" type="Node2D" parent="." unique_id=102116651]
